@@ -1,4 +1,12 @@
 import { useState } from 'react';
+
+import {
+  SignedIn,
+  SignedOut,
+  SignIn,
+  UserButton
+} from '@clerk/clerk-react';
+
 import {
   LayoutDashboard,
   Lightbulb,
@@ -30,6 +38,7 @@ const NAV = [
 
 export default function App() {
   const [page, setPage] = useState('dashboard');
+
   const { toast, showToast } = useToast();
 
   const pages = {
@@ -44,95 +53,127 @@ export default function App() {
   const Page = pages[page];
 
   return (
-    <div className="app">
-
-      <aside className="sidebar">
-
-        <div className="sidebar-logo">
-          <div className="logo-mark">
-            <span>B</span>
-          </div>
-
-          <div>
-            <div className="logo-text">Brand OS</div>
-            <span className="logo-sub">
-              Creator Command Center
-            </span>
-          </div>
+    <>
+      <SignedOut>
+        <div
+          style={{
+            minHeight: '100vh',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            background: '#0b0b12',
+          }}
+        >
+          <SignIn />
         </div>
+      </SignedOut>
 
-        <nav className="sidebar-nav">
+      <SignedIn>
+        <div className="app">
 
-          <div className="nav-section-label">
-            Workspace
-          </div>
+          <aside className="sidebar">
 
-          {NAV.map(({ id, label, icon: Icon }) => (
-            <div
-              key={id}
-              className={`nav-item ${page === id ? 'active' : ''}`}
-              onClick={() => setPage(id)}
-            >
-              <Icon />
+            <div className="sidebar-logo">
 
-              <span>{label}</span>
+              <div className="logo-mark">
+                <span>B</span>
+              </div>
 
-              {page === id && (
-                <ChevronRight
-                  style={{
-                    marginLeft: 'auto',
-                    width: 13,
-                    opacity: 0.5
-                  }}
+              <div>
+                <div className="logo-text">
+                  Brand OS
+                </div>
+
+                <span className="logo-sub">
+                  Creator Command Center
+                </span>
+              </div>
+
+            </div>
+
+            <nav className="sidebar-nav">
+
+              <div className="nav-section-label">
+                Workspace
+              </div>
+
+              {NAV.map(({ id, label, icon: Icon }) => (
+                <div
+                  key={id}
+                  className={`nav-item ${page === id ? 'active' : ''}`}
+                  onClick={() => setPage(id)}
+                >
+                  <Icon />
+
+                  <span>{label}</span>
+
+                  {page === id && (
+                    <ChevronRight
+                      style={{
+                        marginLeft: 'auto',
+                        width: 13,
+                        opacity: 0.5
+                      }}
+                    />
+                  )}
+                </div>
+              ))}
+
+            </nav>
+
+            <div className="sidebar-footer">
+
+              <div style={{ marginBottom: 12 }}>
+                <UserButton />
+              </div>
+
+              <div className="sidebar-profile">
+
+                <div className="profile-avatar">
+                  CK
+                </div>
+
+                <div>
+                  <div className="profile-name">
+                    Creator
+                  </div>
+
+                  <div className="profile-handle">
+                    @yourbrand
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </aside>
+
+          <main className="main">
+            <Page showToast={showToast} />
+          </main>
+
+          {toast && (
+            <div className={`toast ${toast.type}`}>
+
+              {toast.type === 'success' ? (
+                <CheckCircle
+                  size={14}
+                  color="var(--success)"
+                />
+              ) : (
+                <AlertCircle
+                  size={14}
+                  color="var(--danger)"
                 />
               )}
+
+              {toast.message}
+
             </div>
-          ))}
-        </nav>
-
-        <div className="sidebar-footer">
-          <div className="sidebar-profile">
-
-            <div className="profile-avatar">
-              CK
-            </div>
-
-            <div>
-              <div className="profile-name">
-                Creator
-              </div>
-
-              <div className="profile-handle">
-                @yourbrand
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </aside>
-
-      <main className="main">
-        <Page showToast={showToast} />
-      </main>
-
-      {toast && (
-        <div className={`toast ${toast.type}`}>
-
-          {toast.type === 'success' ? (
-            <CheckCircle
-              size={14}
-              color="var(--success)"
-            />
-          ) : (
-            <AlertCircle
-              size={14}
-              color="var(--danger)"
-            />
           )}
 
-          {toast.message}
         </div>
-      )}
-    </div>
+      </SignedIn>
+    </>
   );
 }
