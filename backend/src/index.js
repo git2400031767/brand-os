@@ -1,4 +1,4 @@
-const Idea = require('./models/idea')
+const Idea = require('./models/Idea')
 const express = require('express');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
