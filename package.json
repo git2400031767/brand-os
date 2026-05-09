@@ -7,5 +7,9 @@
     "start:backend": "cd backend && npm start",
     "start:frontend": "cd frontend && npm start"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "mongoose": "^9.6.2"
+  }
 }

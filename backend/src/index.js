@@ -1,10 +1,41 @@
+const Idea = require("./models/Idea");
 const express = require('express');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
+const mongoose = require('mongoose');
+require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.get("/ideas", async (req, res) => {
+  const ideas = await Idea.find();
+  res.json(ideas);
+});
+app.post("/ideas", async (req, res) => {
+  const idea = new Idea(req.body);
+  await idea.save();
+  res.json(idea);
+});
+app.put("/ideas/:id", async (req, res) => {
+  const updatedIdea = await Idea.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    { new: true }
+  );
+
+  res.json(updatedIdea);
+});
+
+app.delete("/ideas/:id", async (req, res) => {
+  await Idea.findByIdAndDelete(req.params.id);
+
+  res.json({ success: true });
+});
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB Connected'))
+  .catch((err) => console.log(err));
+
 
 // ─────────────────────────────────────────────
 // IN-MEMORY DATA STORE (replace with DB later)
@@ -58,31 +89,52 @@ let data = {
 // ROUTES: IDEAS
 // ─────────────────────────────────────────────
 
-app.get('/api/ideas', (req, res) => res.json(data.ideas));
 
-app.post('/api/ideas', (req, res) => {
-  const idea = { id: uuidv4(), createdAt: new Date().toISOString(), status: 'draft', tags: [], ...req.body };
-  data.ideas.unshift(idea);
+// GET IDEAS
+app.get('/api/ideas', async (req, res) => {
+  const ideas = await Idea.find();
+  res.json(ideas);
+});
+
+// CREATE IDEA
+app.post('/api/ideas', async (req, res) => {
+  const idea = new Idea({
+    ...req.body,
+    status: 'draft'
+  });
+
+  await idea.save();
   res.status(201).json(idea);
 });
 
-app.put('/api/ideas/:id', (req, res) => {
-  const idx = data.ideas.findIndex(i => i.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ error: 'Not found' });
-  data.ideas[idx] = { ...data.ideas[idx], ...req.body };
-  res.json(data.ideas[idx]);
+// UPDATE IDEA STATUS
+app.put('/api/ideas/:id', async (req, res) => {
+  const updatedIdea = await Idea.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    { new: true }
+  );
+
+  res.json(updatedIdea);
 });
 
-app.delete('/api/ideas/:id', (req, res) => {
-  data.ideas = data.ideas.filter(i => i.id !== req.params.id);
-  res.json({ success: true });
+// DELETE IDEA
+app.delete('/api/ideas/:id', async (req, res) => {
+  await Idea.findByIdAndDelete(req.params.id);
+
+  res.json({
+    success: true
+  });
 });
 
 // ─────────────────────────────────────────────
 // ROUTES: POSTS
 // ─────────────────────────────────────────────
 
-app.get('/api/posts', (req, res) => res.json(data.posts));
+app.get('/api/ideas', async (req, res) => {
+  const ideas = await Idea.find();
+  res.json(ideas);
+});
 
 app.post('/api/posts', (req, res) => {
   const post = { id: uuidv4(), status: 'scheduled', engagement: null, ...req.body };
